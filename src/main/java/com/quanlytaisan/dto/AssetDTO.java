@@ -29,12 +29,11 @@ public class AssetDTO {
      private String brand;       // Nhãn hiệu
      private String modelCode;   // Mã hiệu
      private String capacity;    // Công suất
-     @NotBlank(message = "Vui lòng chọn trạng thái tài sản")
-     private String status;      // Trạng thái
+     @NotNull(message = "Vui lòng chọn trạng thái tài sản")
+     private AssetStatus status;      // Trạng thái
      private String demand;      // Nhu cầu
      private String notes;       // Ghi chú
 
      // This field is important : take name department from Object Department to show directly
      private String departmentName;
-
- }
+}

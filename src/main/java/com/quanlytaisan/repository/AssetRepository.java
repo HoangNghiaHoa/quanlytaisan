@@ -1,5 +1,6 @@
 package com.quanlytaisan.repository;
 
+import com.quanlytaisan.dto.AssetStatus;
 import com.quanlytaisan.entity.Asset;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,4 +19,15 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
          "LOWER(a.name) LIKE LOWER(CONCAT('%',:keyword,'%')) OR " +
          "LOWER(a.serialNumber) LIKE LOWER(CONCAT('%',:keyword,'%'))")
    Page<Asset> searchAssets(@Param("keyword") String keyword, Pageable pageable);
+   Page<Asset> findByDepartmentId(Long departmentId, Pageable pageable);
+
+   Page<Asset> findByStatus(AssetStatus status, Pageable pageable);
+
+   Page<Asset> findByDepartmentIdAndStatus(Long departmentId, AssetStatus status, Pageable pageable);
+
+   @Query("SELECT SUM(a.quantity) FROM Asset a")
+   Long sumTotalQuantity();
+   Long countByStatus(AssetStatus status);
+
+   //Long count();
 }
