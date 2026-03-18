@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    --background: 220 20% 97%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 220 70% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 15% 95%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 220 15% 95%;
+    --muted-foreground: 220 10% 46%;
+
+    --accent: 220 15% 95%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 70% 50%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar - dark blue-slate */
+    --sidebar-bg: 222 47% 11%;
+    --sidebar-bg-active: 0 65% 42%;
+    --sidebar-text: 220 20% 65%;
+    --sidebar-text-active: 0 0% 100%;
+
+    /* Stat card icon colors */
+    --stat-blue: 220 70% 50%;
+    --stat-green: 142 70% 45%;
+    --stat-orange: 32 95% 55%;
+    --stat-red: 0 65% 55%;
+    --stat-purple: 270 60% 55%;
+
+    --chart-good: 142 70% 45%;
+    --chart-check: 220 70% 50%;
+    --chart-broken: 32 95% 55%;
+    --chart-unknown: 220 10% 46%;
+
+    /* Progress bar colors per department */
+    --bar-red: 0 70% 55%;
+    --bar-purple: 270 55% 50%;
+    --bar-green: 142 65% 42%;
+    --bar-yellow: 45 90% 50%;
+    --bar-black: 0 0% 20%;
+    --bar-red-light: 0 60% 60%;
+    --bar-purple-light: 280 40% 60%;
+    --bar-green-dark: 155 60% 35%;
+    --bar-yellow-dark: 38 80% 48%;
+
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 220 20% 65%;
+    --sidebar-primary: 0 65% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 65% 42%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 222 30% 18%;
+    --sidebar-ring: 220 70% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(30px, -30px) rotate(90deg); }
+  50% { transform: translate(-20px, 20px) rotate(180deg); }
+  75% { transform: translate(20px, 30px) rotate(270deg); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

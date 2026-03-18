@@ -1,0 +1,17 @@
+# IDE rác (IntelliJ, VS Code)
+.idea/
+*.iml
+.vscode/
+
+# Java rác (Maven build)
+**/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Frontend rác (Node modules và kết quả build)
+**/node_modules/
+**/dist/
+**/build/
+.DS_Store
+
+# File bảo mật (Nếu sau này bạn có dùng file .env)
+.env
