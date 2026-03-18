@@ -2,9 +2,12 @@ package com.quanlytaisan.config;
 
 import com.quanlytaisan.dto.AssetStatus;
 import com.quanlytaisan.entity.Asset;
-import  com.quanlytaisan.entity.Department;
+import com.quanlytaisan.entity.Department;
+import com.quanlytaisan.entity.User;
 import com.quanlytaisan.repository.DepartmentRepository;
 import com.quanlytaisan.repository.AssetRepository;
+import com.quanlytaisan.repository.UserRepository;
+import com.quanlytaisan.role.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +31,7 @@ public class DataInitializer {
                 List<String> department = Arrays.asList(
                         "BGĐ","KTTH","CNTT",
                         "GTGT","KTPM","GPPM",
-                        "PMHCM","ANTT"," DVTC"
+                        "PMHCM","ANTT","DVTC"
                 );
                 department.forEach(name ->{
                     Department dept = new Department();
@@ -83,6 +86,30 @@ public class DataInitializer {
                     assetRepository.save(a2);
                 }
                 System.out.println(">>> Đã khởi tạo các tài sản mẫu thành công!");
+            }
+        };
+    }
+    @Bean
+    CommandLineRunner init(UserRepository userRepository){
+
+        return args->{
+            if(userRepository.findByUsername("admin").isEmpty()){
+
+                User admin =  new User();
+                admin.setUsername("admin");
+                admin.setPassword("123456");
+                admin.setRole(Role.ADMIN);
+                userRepository.save(admin);
+                System.out.println(">>> Đã tạo user Admin");
+            }
+            // Check và tạo Employee
+            if(userRepository.findByUsername("employee").isEmpty()){
+                User employee = new User();
+                employee.setUsername("employee");
+                employee.setPassword("56789");
+                employee.setRole(Role.EMPLOYEE);
+                userRepository.save(employee);
+                System.out.println(">>> Đã tạo user Employee");
             }
         };
     }

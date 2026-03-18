@@ -22,6 +22,8 @@ public class Department {
 
     @Column(name="description")
     private String description;
+    private String shortName;
+    private String icon;
 
     // Relationship 1-N, one depart has many assets
     @JsonIgnore

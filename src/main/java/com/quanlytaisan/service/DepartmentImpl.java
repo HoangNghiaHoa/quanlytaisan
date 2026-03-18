@@ -41,6 +41,9 @@ public class DepartmentImpl  implements DepartmentService {
     public DepartmentDTO createDepartment(DepartmentDTO departmentDTO) {
         Department department  = new Department();
         department.setName(departmentDTO.getName());
+        department.setShortName(departmentDTO.getShortName()); // Lưu tên viết tắt
+        department.setIcon(departmentDTO.getIcon());           // Lưu tên icon
+        department.setDescription(departmentDTO.getDescription());
 
         Department saved = departmentRepository.save(department);
         departmentDTO.setId(saved.getId());
@@ -52,6 +55,9 @@ public class DepartmentImpl  implements DepartmentService {
         Department dept = departmentRepository.findById(id)
                 .orElseThrow( () ->new ResourceNotFoundException("Department not found!"));
         dept.setName(departmentDTO.getName());
+        dept.setShortName(departmentDTO.getShortName()); // Lưu tên viết tắt
+        dept.setIcon(departmentDTO.getIcon());           // Lưu tên icon
+        dept.setDescription(departmentDTO.getDescription());
         departmentRepository.save(dept);
         departmentDTO.setId(dept.getId());
         return departmentDTO;

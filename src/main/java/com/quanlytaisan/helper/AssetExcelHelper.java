@@ -47,7 +47,7 @@ public class AssetExcelHelper {
                 row.createCell(8).setCellValue(asset.getBrand());
                 row.createCell(9).setCellValue(asset.getModelCode());
                 row.createCell(10).setCellValue(asset.getCapacity());
-                row.createCell(11).setCellValue(asset.getStatus().toString());
+                row.createCell(11).setCellValue(asset.getStatus() != null ? asset.getStatus().getLabel() : "");
                 row.createCell(12).setCellValue(asset.getDemand());
                 row.createCell(13).setCellValue(asset.getNotes());
                 row.createCell(14).setCellValue(asset.getDepartmentName());
@@ -105,8 +105,11 @@ public class AssetExcelHelper {
                     dto.setCapacity(getStringCellValue(row.getCell(10)));
 
                     String status = getStringCellValue(row.getCell(11));
-                    dto.setStatus(AssetStatus.fromLabel(status));
-
+                    try {
+                        dto.setStatus(AssetStatus.fromLabel(status));
+                    } catch (Exception e) {
+                        dto.setStatus(AssetStatus.IDLE); // Mặc định là Rảnh nếu không nhận diện được
+                    }
                     dto.setDemand(getStringCellValue(row.getCell(12)));
                     dto.setNotes(getStringCellValue(row.getCell(13)));
 

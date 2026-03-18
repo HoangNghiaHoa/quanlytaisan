@@ -17,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Pageable;
@@ -27,13 +28,14 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/asset")
+@RequestMapping("/api/assets")
 @CrossOrigin("*")
 @Tag(name = "Asset Controller", description = "Quản lý danh sách công cụ dụng cụ")
 public class AssetController {
     private final AssetService assetService;
 //Create Asset
     @Operation(summary = "Thêm mới một tài sản", description = "Dữ liệu gửi lên dạng JSON không bao gồm ID")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<AssetDTO> createAsset(@Valid @RequestBody AssetDTO assetDTO){
         AssetDTO asset = assetService.createAsset(assetDTO);
@@ -41,6 +43,7 @@ public class AssetController {
     }
 //Get AllAsset
     @Operation(summary = "Lấy danh sách tài sản (Có phân trang & sắp xếp)")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLOYEE')")
     @GetMapping
     public Page<AssetDTO> getAllAsset(
             @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC)
@@ -72,16 +75,25 @@ public class AssetController {
     }
 //Update Asset by ID
     @Operation(summary = "Cập nhật tài sản", description = "Truyền ID trên đường dẫn và dữ liệu mới trong Body")
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<AssetDTO> updateAsset(@PathVariable Long id, @RequestBody AssetDTO assetDTO){
         return ResponseEntity.ok(assetService.updateAsset(id,assetDTO));
     }
 //Delete Asset by Id
     @Operation(summary = "Xóa tài sản theo ID")
-    @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAsset(@PathVariable Long id){
         assetService.deleteAsset(id);
         return ResponseEntity.noContent().build();
+    }
+//Delete many asset
+    @Operation(summary = "Xóa nhieu tài sản theo ID")
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/batch")
+    public ResponseEntity<?> deleteMultiple(@RequestBody List<Long> ids) {
+        assetService.deleteMultipleAssets(ids);
+        return ResponseEntity.ok().build();
     }
 //Import excel
     @Operation(summary = "Import file excel",description = "Upload file Excel dạng multipart/form-data, không bao gồm ID")

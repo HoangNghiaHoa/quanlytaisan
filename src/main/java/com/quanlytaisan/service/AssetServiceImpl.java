@@ -13,6 +13,7 @@ package com.quanlytaisan.service;
  import org.springframework.data.domain.Page;
  import org.springframework.data.domain.Pageable;
  import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Transactional;
  import org.springframework.web.multipart.MultipartFile;
 
  import java.io.IOException;
@@ -58,18 +59,16 @@ public class AssetServiceImpl implements  AssetService {
          //1. Check Asset is existing
          Asset existingAsset = assetRepository.findById(id)
                  .orElseThrow(() ->new ResourceNotFoundException("Not found Asset with ID:" + id));
-         //2 Use Mapper to update Data from DTO to Entity,
-         // use ToEntity and set ID again  or write important fields yourself
-         Asset updateData = assetMapper.toEntity(assetDTO);
-         updateData.setId(existingAsset.getId());// Make sure ID not change
+         // 2. Map new data into old asset(ignore filed null)
+         assetMapper.updateEntityFromDTO(assetDTO, existingAsset);
          //3 Check department if FE send new department
          if(assetDTO.getDepartmentName() !=null){
              Department dept = departmentRepository.findByName(assetDTO.getDepartmentName())
                      .orElseThrow(() ->new ResourceNotFoundException("Phòng ban không hợp lệ"));
-             updateData.setDepartment(dept);
+             existingAsset.setDepartment(dept);
          }
          //4 Save in DB
-         Asset savedAsset = assetRepository.save(updateData);
+         Asset savedAsset = assetRepository.save(existingAsset);
         return assetMapper.toDTO(savedAsset);
      }
 //Search Assets + paging
@@ -96,7 +95,7 @@ public class AssetServiceImpl implements  AssetService {
          }else if(status != null){
              page = assetRepository.findByStatus(status,pageable);
          }else{
-             page= assetRepository.findAll(pageable);
+             page= assetRepository.findAllWithDepartment(pageable);
          }
 
         return page.map(assetMapper::toDTO);
@@ -104,40 +103,31 @@ public class AssetServiceImpl implements  AssetService {
 // Thong ke cua  Asset
     @Override
     public AssetStatisticsDTO getStatistics(){
-         long totalTypes  =  assetRepository.count();
-         Long totalQuantity = assetRepository.sumTotalQuantity();
-         if(totalQuantity == null) totalQuantity =0L;
-
-         long totalUsing = assetRepository.countByStatus(AssetStatus.USING);
-         long totalBroken= assetRepository.countByStatus(AssetStatus.BROKEN);
-
-        return new AssetStatisticsDTO(
-                totalTypes,
-                totalQuantity,
-                totalUsing,
-                totalBroken
-        );
+        return assetRepository.getQuickStatistics();
     }
-
 // Import Excel
+    @Transactional
     @Override
     public void importFromExcel(MultipartFile file) {
         try {
             List<AssetDTO> dtos = AssetExcelHelper.excelToAssets(file.getInputStream());
             for (AssetDTO dto : dtos){
-                Department dpart = departmentRepository
-                                    .findByName(dto.getDepartmentName())
-                                    .orElseGet(() ->{
-                                        Department newDept = new Department();
-                                        newDept.setName(dto.getDepartmentName());
-                                        return departmentRepository.save(newDept);
-                                    });
+                String deptName = dto.getDepartmentName() != null ? dto.getDepartmentName().trim() : "Chưa phân loại";
+
+                Department dpart = departmentRepository.findByName(deptName)
+                        .orElseGet(() -> {
+                            // Chỉ tạo mới nếu thực sự cần, hoặc có thể throw lỗi để người dùng sửa file Excel
+                            Department newDept = new Department();
+                            newDept.setName(deptName);
+                            return departmentRepository.save(newDept);
+                        });
+
                 Asset asset = assetMapper.toEntity(dto);
                 asset.setDepartment(dpart);
+                asset.setQuantity(dto.getQuantity() != null ? dto.getQuantity() : 1);
                 assetRepository.save(asset);
             }
         }catch(Exception e){
-            e.printStackTrace();   // 👈 THÊM DÒNG NÀY
             throw new RuntimeException("Lỗi khi import Excel", e);
         }
     }
@@ -146,4 +136,10 @@ public class AssetServiceImpl implements  AssetService {
      public void deleteAsset(Long id) {
          assetRepository.deleteById(id);
      }
+// Delete many assets
+    @Override
+    @Transactional
+    public void deleteMultipleAssets(List<Long> ids) {
+        assetRepository.deleteAllByIdInBatch(ids);
+    }
 }

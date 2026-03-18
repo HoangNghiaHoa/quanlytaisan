@@ -22,8 +22,9 @@ public class GlobalExceptionHandler {
     }
     // 2. Xử lý tất cả các lỗi còn lại (500)
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorMessage> globalExceptionHandler(RuntimeException ex, WebRequest request){
+    public ResponseEntity<ErrorMessage> globalExceptionHandler(Exception ex, WebRequest request){
 
+        ex.printStackTrace();
         ErrorMessage message = new ErrorMessage(
                HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 LocalDateTime.now(),

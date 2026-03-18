@@ -1,4 +1,6 @@
 package com.quanlytaisan.dto;
+ import com.fasterxml.jackson.annotation.JsonProperty;
+ import io.swagger.v3.oas.annotations.media.Schema;
  import lombok.Data;
  import lombok.NoArgsConstructor;
  import lombok.AllArgsConstructor;
@@ -8,6 +10,9 @@ package com.quanlytaisan.dto;
  @AllArgsConstructor
  @NoArgsConstructor
 public class AssetDTO {
+
+     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
      private Long id;
 
      @NotBlank(message = "Tên tài sản không được để trống")
@@ -17,7 +22,7 @@ public class AssetDTO {
      private String serialNumber;
 
      @NotNull(message = "Số lượng không được để trống")
-     @Min(value = 1, message = "Số lượng tối thiểu phải là 1")
+     @Positive(message = "Số lượng phải là số dương")
      private Integer quantity;
 
      private String unit;

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @RestController
-@RequestMapping("/api/department")
+@RequestMapping("/api/departments")
 @RequiredArgsConstructor
 @CrossOrigin("*")
 @Tag(name="Department Controller", description = "Quản lý phòng ban")
