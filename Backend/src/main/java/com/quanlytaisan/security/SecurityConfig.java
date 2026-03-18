@@ -29,7 +29,10 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(request -> {
                     var config = new org.springframework.web.cors.CorsConfiguration();
 
-                    config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173", "http://localhost:8080"));
+                    config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173",
+                            "http://localhost:5173",          // Cho máy local
+                            "https://quanlytaisan-fe.onrender.com" ,// LINK FRONTEND MỚI CỦA BẠN
+                            "http://localhost:8080"));
                     config.setAllowedMethods(List.of("*"));
                     config.setAllowedHeaders(List.of("*"));
                     return config;
