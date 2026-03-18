@@ -1,11 +1,14 @@
 package com.quanlytaisan.helper;
 
 import com.quanlytaisan.dto.AssetDTO;
+import com.quanlytaisan.dto.AssetStatus;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 public class AssetExcelHelper {
     public static String[] HEADERS = {
@@ -44,7 +47,7 @@ public class AssetExcelHelper {
                 row.createCell(8).setCellValue(asset.getBrand());
                 row.createCell(9).setCellValue(asset.getModelCode());
                 row.createCell(10).setCellValue(asset.getCapacity());
-                row.createCell(11).setCellValue(asset.getStatus());
+                row.createCell(11).setCellValue(asset.getStatus() != null ? asset.getStatus().getLabel() : "");
                 row.createCell(12).setCellValue(asset.getDemand());
                 row.createCell(13).setCellValue(asset.getNotes());
                 row.createCell(14).setCellValue(asset.getDepartmentName());
@@ -57,4 +60,109 @@ public class AssetExcelHelper {
             return new ByteArrayInputStream(out.toByteArray());
         }
     }
+    public static List<AssetDTO> excelToAssets(InputStream is){
+
+        try(Workbook wb =  new XSSFWorkbook(is)){
+
+            List<AssetDTO> assets = new ArrayList<>();
+
+            // Lặp qua tất cả sheet (mỗi sheet = 1 phòng ban)
+            for(int s=0 ; s < wb.getNumberOfSheets(); s++){
+
+                Sheet sheet = wb.getSheetAt(s);
+
+                String departmentName = sheet.getSheetName();
+                //Dữ liệu bắt đầu từ dòng 10 (index = 9)
+                for(int rowIndex = 9; rowIndex <= sheet.getLastRowNum(); rowIndex++){
+
+                    Row row = sheet.getRow(rowIndex);
+                    if(row == null) continue;
+
+                    String name = getStringCellValue(row.getCell(1));
+
+                    if(name == null || name.trim().isEmpty()){
+                        continue;
+                    }
+
+                    AssetDTO dto = new AssetDTO();
+                    dto.setName(name);
+
+                    String serial = getStringCellValue(row.getCell(2));
+                    if(serial == null || serial.isEmpty()){
+                        serial = "AUTO-" + System.currentTimeMillis();
+                    }
+                    dto.setSerialNumber(serial);
+
+                    Integer quantity = getIntegerCellValue(row.getCell(3));
+                    dto.setQuantity(quantity != null ? quantity : 1);
+
+                    dto.setUnit(getStringCellValue(row.getCell(4)));
+                    dto.setMfgYear(getIntegerCellValue(row.getCell(5)));
+                    dto.setUsageYear(getIntegerCellValue(row.getCell(6)));
+                    dto.setOrigin(getStringCellValue(row.getCell(7)));
+                    dto.setBrand(getStringCellValue(row.getCell(8)));
+                    dto.setModelCode(getStringCellValue(row.getCell(9)));
+                    dto.setCapacity(getStringCellValue(row.getCell(10)));
+
+                    String status = getStringCellValue(row.getCell(11));
+                    try {
+                        dto.setStatus(AssetStatus.fromLabel(status));
+                    } catch (Exception e) {
+                        dto.setStatus(AssetStatus.IDLE); // Mặc định là Rảnh nếu không nhận diện được
+                    }
+                    dto.setDemand(getStringCellValue(row.getCell(12)));
+                    dto.setNotes(getStringCellValue(row.getCell(13)));
+
+                    dto.setDepartmentName(departmentName);
+
+                    assets.add(dto);
+                }
+            }
+         return assets;
+        }catch(IOException e){
+            throw new RuntimeException("Lỗi khi đọc file Excel: " + e.getMessage());
+        }
+    }
+    private static String getStringCellValue(Cell cell) {
+
+        if (cell == null) return null;
+
+        if (cell.getCellType() == CellType.STRING) {
+            return cell.getStringCellValue().trim();
+        }
+
+        if (cell.getCellType() == CellType.NUMERIC) {
+            return String.valueOf((int) cell.getNumericCellValue());
+        }
+
+        return null;
+    }
+    private static Integer getIntegerCellValue(Cell cell){
+
+        if(cell == null) return null;
+
+        try{
+
+            if(cell.getCellType() == CellType.NUMERIC){
+                return (int) cell.getNumericCellValue();
+            }
+
+            if(cell.getCellType() == CellType.STRING){
+                String value = cell.getStringCellValue();
+
+                if(value == null || value.trim().isEmpty()){
+                    return null;
+                }
+
+                return Integer.parseInt(value.trim());
+            }
+
+        }catch(Exception e){
+            // Nếu dữ liệu không phải số thì bỏ qua
+            return null;
+        }
+
+        return null;
+    }
+
 }

@@ -1,5 +1,7 @@
 package com.quanlytaisan.repository;
 
+import com.quanlytaisan.dto.AssetStatisticsDTO;
+import com.quanlytaisan.dto.AssetStatus;
 import com.quanlytaisan.entity.Asset;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,4 +20,22 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
          "LOWER(a.name) LIKE LOWER(CONCAT('%',:keyword,'%')) OR " +
          "LOWER(a.serialNumber) LIKE LOWER(CONCAT('%',:keyword,'%'))")
    Page<Asset> searchAssets(@Param("keyword") String keyword, Pageable pageable);
+   // Tối ưu các hàm Filter: Thay vì dùng Query Method mặc định, hãy dùng @Query để JOIN FETCH
+   @Query("SELECT a FROM Asset a LEFT JOIN FETCH a.department WHERE a.department.id = :deptId")
+   Page<Asset> findByDepartmentId(@Param("deptId") Long departmentId, Pageable pageable);
+
+   @Query("SELECT a FROM Asset a LEFT JOIN FETCH a.department WHERE a.status = :status")
+   Page<Asset> findByStatus(@Param("status") AssetStatus status, Pageable pageable);
+
+   @Query("SELECT a FROM Asset a LEFT JOIN FETCH a.department WHERE a.department.id = :deptId AND a.status = :status")
+   Page<Asset> findByDepartmentIdAndStatus(@Param("deptId") Long departmentId, @Param("status") AssetStatus status, Pageable pageable);
+
+   @Query("SELECT new com.quanlytaisan.dto.AssetStatisticsDTO(" +
+           "COUNT(a), " +
+           "SUM(a.quantity), " +
+           "SUM(CASE WHEN a.status = 'USING' THEN 1 ELSE 0 END), " +
+           "SUM(CASE WHEN a.status = 'BROKEN' THEN 1 ELSE 0 END)) " +
+           "FROM Asset a")
+   AssetStatisticsDTO getQuickStatistics();
+
 }

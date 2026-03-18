@@ -1,5 +1,6 @@
 package com.quanlytaisan.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,9 +22,12 @@ public class Department {
 
     @Column(name="description")
     private String description;
+    private String shortName;
+    private String icon;
 
     // Relationship 1-N, one depart has many assets
-    @OneToMany(mappedBy ="department" ,cascade = CascadeType.ALL)
+    @JsonIgnore
+    @OneToMany(mappedBy ="department")
     private List<Asset> assets;
 
 }

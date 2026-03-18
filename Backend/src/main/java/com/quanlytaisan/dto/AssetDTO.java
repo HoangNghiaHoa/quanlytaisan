@@ -1,4 +1,6 @@
 package com.quanlytaisan.dto;
+ import com.fasterxml.jackson.annotation.JsonProperty;
+ import io.swagger.v3.oas.annotations.media.Schema;
  import lombok.Data;
  import lombok.NoArgsConstructor;
  import lombok.AllArgsConstructor;
@@ -8,6 +10,9 @@ package com.quanlytaisan.dto;
  @AllArgsConstructor
  @NoArgsConstructor
 public class AssetDTO {
+
+     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
      private Long id;
 
      @NotBlank(message = "Tên tài sản không được để trống")
@@ -17,7 +22,7 @@ public class AssetDTO {
      private String serialNumber;
 
      @NotNull(message = "Số lượng không được để trống")
-     @Min(value = 1, message = "Số lượng tối thiểu phải là 1")
+     @Positive(message = "Số lượng phải là số dương")
      private Integer quantity;
 
      private String unit;
@@ -29,12 +34,11 @@ public class AssetDTO {
      private String brand;       // Nhãn hiệu
      private String modelCode;   // Mã hiệu
      private String capacity;    // Công suất
-     @NotBlank(message = "Vui lòng chọn trạng thái tài sản")
-     private String status;      // Trạng thái
+     @NotNull(message = "Vui lòng chọn trạng thái tài sản")
+     private AssetStatus status;      // Trạng thái
      private String demand;      // Nhu cầu
      private String notes;       // Ghi chú
 
      // This field is important : take name department from Object Department to show directly
      private String departmentName;
-
- }
+}
