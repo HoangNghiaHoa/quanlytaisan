@@ -28,13 +28,13 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(request -> {
                     var config = new org.springframework.web.cors.CorsConfiguration();
-
-                    config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173",
-                            "http://localhost:5173",          // Cho máy local
-                            "https://quanlytaisan-fe.onrender.com" ,// LINK FRONTEND MỚI CỦA BẠN
-                            "http://localhost:8080"));
-                    config.setAllowedMethods(List.of("*"));
+                    config.setAllowedOrigins(List.of(
+                            "http://localhost:5173",
+                            "https://quanlytaisan-fe.onrender.com"
+                    ));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Liệt kê rõ các phương thức
                     config.setAllowedHeaders(List.of("*"));
+                    config.setAllowCredentials(true); // Cực kỳ quan trọng để hết lỗi 403 ở FE
                     return config;
                 }))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
