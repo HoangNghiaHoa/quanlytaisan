@@ -25,43 +25,71 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // 1. Tắt CSRF (Bắt buộc cho ứng dụng Stateless dùng JWT)
                 .csrf(csrf -> csrf.disable())
+
+                // 2. Cấu hình CORS chi tiết hơn
                 .cors(cors -> cors.configurationSource(request -> {
                     var config = new org.springframework.web.cors.CorsConfiguration();
-                    config.setAllowedOrigins(List.of(
-                            "http://localhost:5173",
-                            "https://quanlytaisan-fe.onrender.com"
-                    ));
-                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Liệt kê rõ các phương thức
+                    config.setAllowedOriginPatterns(List.of("*")); // Cho phép tất cả nguồn để test lỗi
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
-                    config.setAllowCredentials(true); // Cực kỳ quan trọng để hết lỗi 403 ở FE
+                    config.setAllowCredentials(true);
                     return config;
                 }))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        // Cho phép tất cả các đường dẫn liên quan đến Swagger và Auth
-                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Cho phép Preflight
-                        .requestMatchers(
-                                "/auth/**",
-                                "/api/auth/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/swagger-resources/**",
-                                "/webjars/**"
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/assets/**").permitAll()
-//                        .requestMatchers("/api/assets/**").hasAnyRole("ADMIN", "USER")
-//                        .requestMatchers("/api/departments/**").hasAnyRole("ADMIN", "USER")
 
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                .authorizeHttpRequests(auth -> auth
+                        // 3. Cho phép yêu cầu kiểm tra (OPTIONS) đi qua không cần xác thực
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/auth/**", "/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
-                // QUAN TRỌNG: Thêm dòng này để cho phép nạp tài nguyên tĩnh vào Frame
-                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(csrf -> csrf.disable())
+//                .cors(cors -> cors.configurationSource(request -> {
+//                    var config = new org.springframework.web.cors.CorsConfiguration();
+//                    config.setAllowedOrigins(List.of(
+//                            "http://localhost:5173",
+//                            "https://quanlytaisan-fe.onrender.com"
+//                    ));
+//                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Liệt kê rõ các phương thức
+//                    config.setAllowedHeaders(List.of("*"));
+//                    config.setAllowCredentials(true); // Cực kỳ quan trọng để hết lỗi 403 ở FE
+//                    return config;
+//                }))
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .authorizeHttpRequests(auth -> auth
+//                        // Cho phép tất cả các đường dẫn liên quan đến Swagger và Auth
+//                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Cho phép Preflight
+//                        .requestMatchers(
+//                                "/auth/**",
+//                                "/api/auth/**",
+//                                "/v3/api-docs/**",
+//                                "/swagger-ui/**",
+//                                "/swagger-ui.html",
+//                                "/swagger-resources/**",
+//                                "/webjars/**"
+//                        ).permitAll()
+//                        .requestMatchers(HttpMethod.POST, "/api/assets/**").permitAll()
+////                        .requestMatchers("/api/assets/**").hasAnyRole("ADMIN", "USER")
+////                        .requestMatchers("/api/departments/**").hasAnyRole("ADMIN", "USER")
+//
+//                        .anyRequest().authenticated()
+//                )
+//                // QUAN TRỌNG: Thêm dòng này để cho phép nạp tài nguyên tĩnh vào Frame
+//                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+//
+//        return http.build();
+//    }
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
