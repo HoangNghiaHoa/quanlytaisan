@@ -86,7 +86,7 @@
       <recent name="D:\TTS\quan_ly_tai_san_backend" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Spring Boot.QuanLyTaiSanBackendApplication (1)">
     <configuration name="QuanLyTaiSanBackendApplication (1)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="quan_ly_tai_san_backend" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.quanlytaisan.QuanLyTaiSanBackendApplication" />
@@ -100,6 +100,13 @@
           <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
         </ENTRIES>
       </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="QuanLyTaiSanBackendApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="backend" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.quanlytaisan.QuanLyTaiSanBackendApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
