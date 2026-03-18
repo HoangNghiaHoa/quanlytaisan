@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:8081/api";
+const API_BASE_URL = "https://quanlytaisan-m2oc.onrender.com";
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
