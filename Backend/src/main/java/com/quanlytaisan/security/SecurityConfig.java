@@ -30,7 +30,9 @@ public class SecurityConfig {
                     var config = new org.springframework.web.cors.CorsConfiguration();
                     config.setAllowedOrigins(List.of(
                             "http://localhost:5173",
-                            "https://quanlytaisan-fe.onrender.com"
+                            "https://quanlytaisan-fe.onrender.com",
+                            "http://localhost:8080"
+
                     ));
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Liệt kê rõ các phương thức
                     config.setAllowedHeaders(List.of("*"));

@@ -112,8 +112,8 @@ const toPayload = (e: Omit<Equipment, "id">): AssetPayload => ({
 
 // Chuyển từ dữ liệu API (Backend) sang dữ liệu Local (UI)
 const fromResponse = (r: any, currentDepartments: Department[]): Equipment => {
-  // Tìm phòng ban có tên trùng với tên từ API để lấy ID
   const dept = currentDepartments.find(d => 
+    String(d.id) === String(r.departmentId) || 
     d.name.trim().toLowerCase() === (r.departmentName || "").trim().toLowerCase()
   );
   
@@ -133,8 +133,8 @@ const fromResponse = (r: any, currentDepartments: Department[]): Equipment => {
     demand: r.demand,
     note: r.notes,
     // Gán ID tìm được, nếu không thấy thì để trống
-    departmentId: dept ? String(dept.id) : (r.departmentId ? String(r.departmentId) : ""), 
-    departmentName: r.departmentName || "Phòng chưa xác định",
+    departmentId: r.departmentId ? String(r.departmentId) : (dept ? String(dept.id) : ""), 
+    departmentName: r.departmentName || (dept ? dept.name : "Phòng chưa xác định"),
   };
 };
 export const EquipmentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -155,18 +155,18 @@ export const EquipmentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-    const [assetsPage, depts] = await Promise.all([getAssets(), getDepartmentsApi()]);
-    
-    // Ép kiểu depts về Department[] nếu cấu trúc đã khớp
+    // 1. Lấy Departments trước
+    const depts = await getDepartmentsApi();
     const formattedDepts = (depts || []).map((d: any) => ({
       id: d.id,
       name: d.name,
-      shortName: d.short, // Map từ trường 'short' của BE
+      shortName: d.short, 
       icon: d.icon || "Building"
     })) as Department[];
-
     setDepartments(formattedDepts);
 
+    // 2. Sau đó mới lấy Assets và map dựa trên formattedDepts vừa có
+    const assetsPage = await getAssets();
     const formattedAssets = (assetsPage.content || []).map((asset: any) => 
       fromResponse(asset, formattedDepts)
     );
@@ -281,7 +281,14 @@ export const EquipmentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const created = await addAssetApi(toPayload(data));
       // TRUYỀN THÊM: departments vào đây
-      setEquipmentData((prev) => [...prev, fromResponse(created, departments)]);
+        const newAsset: Equipment = {
+        ...data,
+        id: created.id,
+        // Đảm bảo departmentId luôn được giữ lại từ form
+        departmentId: String(data.departmentId) 
+      };
+
+      setEquipmentData((prev) => [...prev, newAsset]);
       toast({ title: "✅ Thêm CCDC thành công" });
     } catch (err: any) {
       toast({ title: "Lỗi thêm CCDC", description: err.message, variant: "destructive" });
@@ -309,35 +316,26 @@ export const EquipmentProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [toast]);
 
-const deleteEquipment = async (id: number) => {
-  try {
-    await deleteAssetApi(id); 
-    
-    // 1. Cập nhật mảng gốc
-    setEquipmentData(prev => {
-      const newData = prev.filter(item => item.id !== id);
-      // Nếu xóa xong mà trang hiện tại không còn phần tử nào, tự lùi 1 trang
-      const totalPages = Math.ceil(newData.length / rowsPerPage);
-      if (currentPage > totalPages && totalPages > 0) {
-        setCurrentPage(totalPages);
+    const deleteEquipment = async (id: number) => {
+      try {
+        await deleteAssetApi(id); 
+        
+        setEquipmentData(prev => {
+          const newData = prev.filter(item => item.id !== id);
+          return newData;
+        });
+
+        // Reset các hàng đang chọn
+        setSelectedRows(new Set());
+        
+        // Đưa về trang 1 cho an toàn sau khi xóa
+        setCurrentPage(1); 
+
+        toast({ title: "✅ Xóa thành công" });
+      } catch (error) {
+        toast({ title: "❌ Lỗi khi xóa", variant: "destructive" });
       }
-      return newData;
-    });
-
-    // 2. Quan trọng: Xóa ID khỏi hàng được chọn để tránh lỗi logic Selection
-    setSelectedRows(prev => {
-      const next = new Set(prev);
-      next.delete(id);
-      return next;
-    });
-
-    toast({ title: "✅ Xóa thành công" });
-  } catch (error) {
-    console.error(error);
-    toast({ title: "❌ Lỗi khi xóa", variant: "destructive" });
-  }
-};
-
+    };
 const deleteMultiple = async (ids: Set<number>) => {
   const idArray = Array.from(ids);
   try {
@@ -379,7 +377,15 @@ const deleteMultiple = async (ids: Set<number>) => {
 );
 
   const getFilteredByDepartment = useCallback(
-    (departmentId: string) => applyFiltersAndSort(equipmentData.filter((e) => String(e.departmentId) === String(departmentId))),
+    (departmentId: string) => {
+      // Log ra để kiểm tra nếu bị trống
+      const result = equipmentData.filter((e) => {
+        const match = String(e.departmentId) === String(departmentId);
+        return match;
+      });
+      
+      return applyFiltersAndSort(result);
+    },
     [equipmentData, applyFiltersAndSort]
   );
 

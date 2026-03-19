@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, Pencil, Trash2, Plus, FileSpreadsheet, FileText, ChevronLeft, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown, Filter, Upload } from "lucide-react";
 import { Equipment, useEquipment } from "@/contexts/EquipmentContext";
 import { useToast } from "@/hooks/use-toast";
@@ -41,12 +41,15 @@ const EquipmentTable = ({ departmentId }: EquipmentTableProps) => {
   const [panelItemId, setPanelItemId] = useState<number | null>(null);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
-
-  // Sử dụng filteredData (là mảng 35 cái sau khi đã sửa API)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [departmentId, setCurrentPage]);
+// Cập nhật lại logic tính toán an toàn hơn
   const data = departmentId ? getFilteredByDepartment(departmentId) : filteredData;
+  
 
   // Tổng số trang = 35 / 10 (rowsPerPage) = 4 trang
-  const totalPages = Math.ceil(data.length / rowsPerPage); 
+  const totalPages = Math.max(1, Math.ceil(data.length / rowsPerPage));
 
   const start = (currentPage - 1) * rowsPerPage;
 

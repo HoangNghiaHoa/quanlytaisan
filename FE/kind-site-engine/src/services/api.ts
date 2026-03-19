@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://quanlytaisan-m2oc.onrender.com/api";
+ const API_BASE_URL = //"https://quanlytaisan-m2oc.onrender.com/api";//
+                      "http://localhost:8081/api"; // Thay bằng URL thực tế của backend
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
