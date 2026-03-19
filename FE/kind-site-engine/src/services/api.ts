@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://quanlytaisan-m2oc.onrender.com";
+const API_BASE_URL = "https://quanlytaisan-m2oc.onrender.com/api";
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -177,7 +177,7 @@ export interface LoginResponse {
 export const loginApi = async (
   payload: LoginPayload
 ): Promise<LoginResponse> => {
-  const { data } = await apiClient.post<LoginResponse>("/api/auth/login", payload);
+  const { data } = await apiClient.post<LoginResponse>("/auth/login", payload);
   return data;
 };
 
