@@ -16,6 +16,7 @@ public class AssetExcelHelper {
             "Năm SX", "Năm sử dụng", "Xuất xứ", "Nhãn hiệu", "Mã hiệu",
             "Công suất", "Trạng thái", "Nhu cầu", "Ghi chú", "Phòng ban"
     };
+    // import excel
     public static ByteArrayInputStream assetsToExcel(List<AssetDTO> assets) throws IOException{
         try(Workbook wb = new XSSFWorkbook(); ByteArrayOutputStream  out = new ByteArrayOutputStream()){
             Sheet sheet = wb.createSheet("Danh sách tài sản");
@@ -60,6 +61,7 @@ public class AssetExcelHelper {
             return new ByteArrayInputStream(out.toByteArray());
         }
     }
+    // export excel
     public static List<AssetDTO> excelToAssets(InputStream is){
 
         try(Workbook wb =  new XSSFWorkbook(is)){
