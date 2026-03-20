@@ -1,56 +1,39 @@
+📦 QuanLyTaiSan - Asset Management System
+QuanLyTaiSan là hệ thống quản lý tài sản và phòng ban, giúp doanh nghiệp theo dõi vòng đời tài sản, tối ưu hóa việc phân bổ và kiểm soát dữ liệu tập trung.
+🚀 Tính năng chính
 
-Asset Management System - Backend API
-🎯 Giới thiệu
-Đây là mã nguồn phía Server của hệ thống Quản lý tài sản. Dự án tập trung vào việc xây dựng hệ thống RESTful API bảo mật, hiệu năng cao để quản lý thiết bị và phòng ban.
+Quản lý tài sản (Assets): Các thao tác CRUD (Thêm, Sửa, Xóa, Xem) thông tin tài sản. 
 
-🚀 Tính năng Backend
-RESTful API: Cung cấp đầy đủ các endpoint CRUD cho Tài sản (Assets) và Phòng ban (Departments).
+Quản lý phòng ban (Departments): Thiết lập mối quan hệ giữa tài sản và đơn vị sử dụng để đảm bảo tính toàn vẹn dữ liệu. 
 
-Stateless Authentication: Sử dụng Spring Security & JWT (JSON Web Token) để xác thực và phân quyền.
+Tìm kiếm & Lọc: Hệ thống phân trang (Pagination) và bộ lọc (Filtering) giúp truy xuất dữ liệu lớn một cách hiệu quả. 
 
-Database Management: Thiết kế quan hệ One-to-Many giữa Department và Asset, đảm bảo toàn vẹn dữ liệu (Referential Integrity).
+Bảo mật: Tích hợp Spring Security và JWT để quản lý quyền truy cập. 
 
-CORS Configuration: Cấu hình an toàn để cho phép Frontend (React/Vue) giao tiếp với Server.
+🛠 Công nghệ sử dụng
 
-Pagination & Filtering: Xử lý phân trang và lọc dữ liệu trực tiếp từ Database để tối ưu hiệu năng.
+Backend: Java Spring Boot, Spring Data JPA. 
 
-🛠 Tech Stack (Backend Focus)
-Core: Java 17, Spring Boot 3.
+Database: MySQL (Thiết kế quan hệ thực thể chặt chẽ). 
 
-Security: Spring Security, JWT Filter.
+Security: JWT (JSON Web Token), Role-based Authorization. 
 
-Data: Spring Data JPA, Hibernate.
+Optimization: HikariCP (Connection Pooling), Pagination. 
 
-Validation: Spring Boot Validation (Hibernate Validator).
+📂 Kiến trúc dự án
+Dự án được triển khai theo mô hình Layered Architecture để đảm bảo tính dễ bảo trì:
 
-Deployment: Render (Web Service).
+controller: Tiếp nhận và điều hướng các request RESTful.
 
-📂 Cấu trúc mã nguồn
-Plaintext
-src/main/java/com/quanlytaisan/
-├── config/             # Cấu hình hệ thống (CORS, Bean...)
-├── controller/         # REST Controllers (Endpoint mapping)
-├── dto/                # Data Transfer Objects (Request/Response)
-├── model/              # Entity Classes (Database Mapping)
-├── repository/         # Spring Data JPA Interfaces
-├── security/           # JWT Filter, UserDetailsService, SecurityConfig
-└── service/            # Business Logic Layer (Xử lý nghiệp vụ chính)
-🔒 Security Highlights
-Trong dự án này, em đã triển khai:
+service: Xử lý logic nghiệp vụ chính của hệ thống.
 
-JwtFilter: Tách Token từ Header, xác thực tính hợp lệ và thiết lập Authentication Context.
+repository: Tương tác với cơ sở dữ liệu thông qua JPA.
 
-Stateless Session: Không sử dụng Session trên Server, giúp hệ thống dễ dàng mở rộng (Scalability).
+entity: Định nghĩa các đối tượng dữ liệu (Asset, Department).
 
-Password Encoding: Sử dụng BCrypt để mã hóa mật khẩu trước khi lưu vào DB.
+⚙️ Hướng dẫn cài đặt
+Clone project: git clone https://github.com/HoangNghia-Hoa/quanlytaisan 
 
-⚙️ Cài đặt & Chạy Local
-Clone repo.
+Cấu hình database trong file application.properties (URL, Username, Password).
 
-Cập nhật thông tin Database trong src/main/resources/application.properties.
-
-Chạy lệnh: ./mvnw spring-boot:run.
-
-API mặc định chạy tại: http://localhost:8081.
-
-LinkedIn: [Link LinkedIn của em]
+Chạy ứng dụng bằng Maven: mvn spring-boot:run
