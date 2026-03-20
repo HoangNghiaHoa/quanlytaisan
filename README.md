@@ -52,6 +52,5 @@ Cập nhật thông tin Database trong src/main/resources/application.properties
 Chạy lệnh: ./mvnw spring-boot:run.
 
 API mặc định chạy tại: http://localhost:8081.
-Email: [Email của em]
 
 LinkedIn: [Link LinkedIn của em]
