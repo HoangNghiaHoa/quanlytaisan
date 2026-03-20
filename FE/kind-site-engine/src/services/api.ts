@@ -12,38 +12,43 @@ const apiClient = axios.create({
 });
 
 // ─── Request interceptor: Debug log + Token auth ───
-apiClient.interceptors.request.use(
-  (config) => {
-    console.log(`[API Request] ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`, config.data ?? "");
-    const token = localStorage.getItem("auth_token");
-    console.log("Token gửi đi:", token); // Note: Log token for debugging (remove in production!)
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    console.error("[API Request Error]", error);
-    return Promise.reject(error);
-  }
-);
+// ─── Request interceptor ───
+  apiClient.interceptors.request.use(
+    (config) => {
+      // 1. Kiểm tra xem có phải đang gọi API Login không
+      const isLoginRequest = config.url?.includes("/auth/login");
 
-// ─── Response interceptor: Debug log + Error handling ───
-apiClient.interceptors.response.use(
-  (response) => {
-    console.log(`[API Response] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, response.data);
-    return response;
-  },
-  (error) => {
-    const status = error.response?.status;
-    const message =
-      error.response?.data?.message ||
-      error.message ||
-      "Không thể kết nối đến Server";
-    console.error(`[API Error] ${status ?? "NETWORK"} ${error.config?.method?.toUpperCase()} ${error.config?.url}`, message);
-    return Promise.reject(new Error(message));
-  }
-);
+      const token = localStorage.getItem("auth_token");
+      
+      // 2. Chỉ đính token nếu KHÔNG PHẢI là request login và có token tồn tại
+      if (token && !isLoginRequest) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+
+      console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`);
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
+  // ─── Response interceptor: Debug log + Error handling ───
+  apiClient.interceptors.response.use(
+    (response) => {
+      console.log(`[API Response] ${response.status} ${response.config.method?.toUpperCase()} ${response.config.url}`, response.data);
+      return response;
+    },
+    (error) => {
+      const status = error.response?.status;
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Không thể kết nối đến Server";
+      console.error(`[API Error] ${status ?? "NETWORK"} ${error.config?.method?.toUpperCase()} ${error.config?.url}`, message);
+      return Promise.reject(new Error(message));
+    }
+  );
 
 // ═══════════════════════════════════════════
 //  ASSET (CCDC) APIs

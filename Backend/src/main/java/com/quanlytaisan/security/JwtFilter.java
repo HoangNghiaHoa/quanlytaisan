@@ -28,8 +28,15 @@ public class JwtFilter  extends OncePerRequestFilter {
                                     HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
 
+        String path = request.getServletPath();
+        // BỎ QUA kiểm tra JWT nếu là endpoint auth
+        if (path.contains("/api/auth/login") || path.contains("/auth/login")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String header = request.getHeader("Authorization");
-        System.out.println("Header Authorization: " + header); // Log dòng này
+
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
             System.out.println("Token nhan duoc: " + token);
