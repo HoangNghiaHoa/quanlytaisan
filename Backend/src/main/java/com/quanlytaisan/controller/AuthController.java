@@ -20,24 +20,29 @@ public class AuthController {
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder; // Thêm cái này
 
     @Autowired
-    public AuthController(UserRepository userRepository, JwtUtil jwtUtil) {
+    public AuthController(UserRepository userRepository, JwtUtil jwtUtil, org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder; // Inject vào đây
     }
 
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest loginRequest){
         User user = userRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow( () -> new ResourceNotFoundException("User not found!"));
-        if (!user.getPassword().equals(loginRequest.getPassword())){
+
+        // SỬA Ở ĐÂY: Dùng passwordEncoder.matches để so khớp
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())){
             throw new ResourceNotFoundException("Wrong password!");
         }
+
         String token = jwtUtil.generateToken(user.getUsername(),user.getRole().name());
         LoginResponse.UserInfo userInfo = new LoginResponse.UserInfo(
                 user.getUsername(),
-                user.getRole().name().toLowerCase(), // FE đang chờ "admin" hoặc "user" (chữ thường)
+                user.getRole().name().toLowerCase(),
                 user.getDepartments().stream().map(d -> d.getId().toString()).toList()
         );
         return new LoginResponse(token, userInfo);
