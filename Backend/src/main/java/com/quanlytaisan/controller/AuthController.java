@@ -34,8 +34,15 @@ public class AuthController {
         User user = userRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow( () -> new ResourceNotFoundException("User not found!"));
 
-        // SỬA Ở ĐÂY: Dùng passwordEncoder.matches để so khớp
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())){
+        String inputPass = loginRequest.getPassword();
+        String dbPass = user.getPassword();
+
+        // Kiểm tra 2 trường hợp:
+        // 1. Khớp mã hóa BCrypt
+        // 2. Hoặc khớp chuỗi thô (để dự phòng nếu DB chưa update kịp)
+        boolean isMatch = passwordEncoder.matches(inputPass, dbPass) || inputPass.equals(dbPass);
+
+        if (!isMatch){
             throw new ResourceNotFoundException("Wrong password!");
         }
 
